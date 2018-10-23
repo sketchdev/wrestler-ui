@@ -1,10 +1,17 @@
 const ipc = require('electron').ipcRenderer;
 
-const selectFile = () => {
-  ipc.on('hw-reply', (event, arg) => {
-    console.log('hw-reply', arg);
-  });
-  ipc.send('hw', 'hit');
+ipc.on('yarn-start-response', (event, arg) => {
+  console.log(arg);
+});
+
+ipc.on('yarn-stop-response', (event, arg) => {
+  console.log(arg);
+});
+
+window.handleStart = () => {
+  ipc.send('yarn-start');
 };
 
-window.selectFile = selectFile;
+window.handleStop = () => {
+  ipc.send('yarn-stop');
+};

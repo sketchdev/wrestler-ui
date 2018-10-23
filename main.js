@@ -1,7 +1,8 @@
-const { app, ipcMain, BrowserWindow, dialog } = require('electron');
+const { app, ipcMain: ipc, BrowserWindow, dialog } = require('electron');
 const path = require('path');
 
 let mainWindow; // keep a reference; otherwise, GC will collect
+let yarn;
 
 (async () => {
   try {
@@ -27,13 +28,46 @@ let mainWindow; // keep a reference; otherwise, GC will collect
       }
     });
 
-    ipcMain.on('hw', (event, arg) => {
-      console.log('hw', arg);
-      console.log(dialog.showOpenDialog({ properties: ['openFile', 'openDirectory'] }));
-      event.sender.send('hw-reply', 'hat');
+
+    ipc.on('yarn-start', (event, arg) => {
+      console.log('yarn-start');
+
+      // const dir = dialog.showOpenDialog({ properties: ['openFile', 'openDirectory'] });
+      const dir = dialog.showOpenDialog({ properties: ['openDirectory'] });
+      process.chdir(dir[0]);
+
+      const { spawn } = require('child_process');
+      yarn = spawn('yarn', ['start'], { env: { ...process.env, MORGAN_FORMAT: 'tiny' } });
+
+      yarn.stdout.on('data', (data) => {
+        console.log(`stdout: ${data}`);
+        event.sender.send('yarn-start-response', data.toString());
+      });
+
+      yarn.stderr.on('data', (data) => {
+        console.log(`stderr: ${data}`);
+        event.sender.send('yarn-start-response', data.toString());
+      });
+
+      yarn.on('close', (code) => {
+        console.log(`child process exited with code ${code}`);
+        event.sender.send('yarn-start-response', code);
+      });
+
+      event.sender.send('yarn-start-response', `started (${yarn.pid})`);
     });
 
-    mainWindow.webContents.openDevTools();
+    ipc.on('yarn-stop', (event, arg) => {
+      console.log('yarn-stop');
+      const pid = yarn.pid;
+      yarn.kill();
+      // yarn.kill('SIGHUP');
+      event.sender.send('yarn-stop-response', `stopped (${pid})`);
+    });
+
+    if (!app.isPackaged) {
+      mainWindow.webContents.openDevTools();
+    }
 
     if (app.isPackaged) {
       mainWindow.loadFile('build/index.html');
