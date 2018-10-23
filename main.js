@@ -1,5 +1,6 @@
 const { app, ipcMain: ipc, BrowserWindow, dialog } = require('electron');
 const path = require('path');
+const menu = require('./menu');
 
 let mainWindow; // keep a reference; otherwise, GC will collect
 let yarn;
@@ -11,7 +12,9 @@ let yarn;
       return app.quit();
     }
 
+    app.setName('Wrestler UI');
     await app.whenReady();
+    await menu.buildMenu();
 
     mainWindow = new BrowserWindow({
       show: false,
@@ -27,7 +30,6 @@ let yarn;
         textAreasAreResizable: false,
       }
     });
-
 
     ipc.on('yarn-start', (event, arg) => {
       console.log('yarn-start');
@@ -65,14 +67,10 @@ let yarn;
       event.sender.send('yarn-stop-response', `stopped (${pid})`);
     });
 
-    if (!app.isPackaged) {
-      mainWindow.webContents.openDevTools();
-    }
-
     if (app.isPackaged) {
       mainWindow.loadFile('build/index.html');
     } else {
-      mainWindow.loadURL('http://localhost:3000/');
+      mainWindow.loadURL(`http://localhost:${process.env.PORT || 3030}/`);
     }
     mainWindow.on('closed', () => mainWindow = null);
     mainWindow.once('ready-to-show', mainWindow.show);
