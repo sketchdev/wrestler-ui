@@ -4,8 +4,7 @@ import RootPage from './components/pages/RootPage';
 import './App.css';
 import MuiThemeProvider from '@material-ui/core/es/styles/MuiThemeProvider';
 import { createMuiTheme } from '@material-ui/core';
-import ServicePortPage from './components/pages/ServicePortPage';
-import ServiceDatabasePage from './components/pages/ServiceDatabasePage';
+import NewWizard from './components/containers/NewWizard';
 
 const theme = createMuiTheme({
   overrides: {
@@ -36,6 +35,7 @@ const theme = createMuiTheme({
     // },
   },
   typography: {
+    useNextVariants: true,
     fontFamily: '"Rubik", "Helvetica", "Arial", sans-serif',
     fontSize: 15,
   },
@@ -49,8 +49,7 @@ class App extends Component {
     return (
       <MuiThemeProvider theme={theme}>
         <Switch>
-          <Route exact path={'/service/new'} component={ServicePortPage}/>
-          <Route exact path={'/service/new/db'} component={ServiceDatabasePage}/>
+          <Route exact path={'/service/new'} component={NewWizard}/>
           <Route component={RootPage}/>
         </Switch>
       </MuiThemeProvider>
