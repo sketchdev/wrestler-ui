@@ -10,8 +10,12 @@ export const setDatabaseAndContinue = createAction('SET_DATABASE_AND_CONTINUE', 
 export const showProgress = createAction('SHOW_PROGRESS', message => message);
 export const hideProgress = createAction('HIDE_PROGRESS');
 
-export const finishAndStart = () => async dispatch => {
+export const finishAndStart = ({ port, dbEngine, connStr, dbName }) => async dispatch => {
+  const database = dbEngine === 'mongo' ? { mongoDbUri: connStr, mongoDbName: dbName } : null;
+  await window.runServer(port, () => ({ database }));
+
   console.log('starting');
+  window.handleStart();
   dispatch(showProgress('Starting, please wait...'));
   await new Promise(resolve => {
     console.log('doing stuff');

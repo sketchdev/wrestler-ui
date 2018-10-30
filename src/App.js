@@ -5,6 +5,7 @@ import './App.css';
 import MuiThemeProvider from '@material-ui/core/es/styles/MuiThemeProvider';
 import { createMuiTheme } from '@material-ui/core';
 import NewWizard from './components/containers/NewWizard';
+import ServerLogger from './components/molecules/ServerLogger';
 
 const theme = createMuiTheme({
   overrides: {
@@ -52,6 +53,7 @@ class App extends Component {
           <Route exact path={'/service/new'} component={NewWizard}/>
           <Route component={RootPage}/>
         </Switch>
+        <ServerLogger/>
       </MuiThemeProvider>
     );
   }
