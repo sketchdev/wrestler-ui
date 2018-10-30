@@ -1,8 +1,8 @@
 import { combineReducers } from 'redux';
 import newWizard from './newWizard';
-import server from './server';
+import runner from './runner';
 
 export default combineReducers({
   newWizard,
-  server,
+  runner,
 });

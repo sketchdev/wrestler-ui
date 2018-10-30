@@ -1,17 +1,25 @@
-const ipc = require('electron').ipcRenderer;
+const { ipcRenderer: ipc } = require('electron');
+const { SERVER_START, SERVER_START_RESPONSE, SERVER_LOG_MESSAGE } = require('./lib/runner');
 
-ipc.on('yarn-start-response', (event, arg) => {
-  console.log(arg);
-});
+const runner = {
+  logSubscribers: {},
 
-ipc.on('yarn-stop-response', (event, arg) => {
-  console.log(arg);
-});
+  addLogSubscriber: (fn) => runner.logSubscribers[fn] = fn,
+  removeLogSubscriber: (fn) => (delete runner.logSubscribers[fn]),
 
-window.handleStart = () => {
-  ipc.send('yarn-start');
+  handleStartResponse: (event, arg) => {
+    console.log(arg);
+  },
+
+  handleLogMessage: (event, arg) => {
+    Object.values(runner.logSubscribers).forEach(subscriber => subscriber(arg));
+  },
+
+  start: () => {
+    ipc.send(SERVER_START);
+    ipc.on(SERVER_START_RESPONSE, runner.handleStartResponse);
+    ipc.on(SERVER_LOG_MESSAGE, runner.handleLogMessage);
+  },
 };
 
-window.handleStop = () => {
-  ipc.send('yarn-stop');
-};
+window.runner = runner;

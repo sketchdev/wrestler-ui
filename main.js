@@ -1,6 +1,7 @@
 const { app, BrowserWindow } = require('electron');
 const path = require('path');
 const menu = require('./menu');
+const runner = require('./lib/runner');
 
 let mainWindow; // keep a reference; otherwise, GC will collect
 // let yarn;
@@ -30,6 +31,8 @@ let mainWindow; // keep a reference; otherwise, GC will collect
         textAreasAreResizable: false,
       }
     });
+
+    runner.initalize();
 
     // ipc.on('yarn-start', (event, arg) => {
     //   console.log('yarn-start');
